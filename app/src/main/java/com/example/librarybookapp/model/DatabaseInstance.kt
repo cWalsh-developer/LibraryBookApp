@@ -2,7 +2,6 @@ package com.example.librarybookapp.model
 
 import android.content.Context
 import androidx.room.Room
-import com.example.librarybookapp.model.AppDatabase
 
 object DatabaseInstance {
     private var INSTANCE: AppDatabase? = null
