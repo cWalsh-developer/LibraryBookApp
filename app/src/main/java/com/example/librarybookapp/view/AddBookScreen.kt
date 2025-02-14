@@ -44,7 +44,7 @@ fun AddBookScreen(onBookAdded: () -> Unit, bookListViewModel: BookListViewModel)
         Text(
             text = "Add Book",
             modifier = Modifier.padding(bottom = 16.dp),
-            color = Color(0xff26662a),
+            color = Color(0xFF6650a4),
             style = MaterialTheme.typography.headlineLarge
         )
 
@@ -82,7 +82,7 @@ fun AddBookScreen(onBookAdded: () -> Unit, bookListViewModel: BookListViewModel)
         Button(onClick = {
             // Add book to database or perform other actions
 
-            val book = Book(bookTitle, bookAuthor, bookGenre, bookProgress, bookDate)
+            val book = Book(bookTitle = bookTitle, bookAuthor = bookAuthor, bookGenre = bookGenre, dateAdded = bookDate, readingProgress = bookProgress)
             coroutineScope.launch {
                 bookListViewModel.addBook(book)
             }

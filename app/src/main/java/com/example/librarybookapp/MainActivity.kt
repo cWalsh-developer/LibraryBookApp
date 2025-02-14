@@ -8,9 +8,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -19,11 +16,12 @@ import com.example.librarybookapp.ui.theme.LibraryBookAppTheme
 import com.example.librarybookapp.viewmodel.BookListViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.librarybookapp.model.Book
+import com.example.librarybookapp.model.DatabaseInstance
 import com.example.librarybookapp.view.AddBookScreen
 import com.example.librarybookapp.view.BookInfoScreen
 import com.example.librarybookapp.view.BookListScreen
 import com.example.librarybookapp.view.Screen
+import com.example.librarybookapp.viewmodel.BookInfoViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,7 +29,8 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             val navController = rememberNavController()
-            val bookListViewModel: BookListViewModel = viewModel()
+            val bookListViewModel = BookListViewModel(DatabaseInstance.getDatabase(this))
+            val bookInfoViewModel: BookInfoViewModel = viewModel()
 
             LibraryBookAppTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding
@@ -39,6 +38,7 @@ class MainActivity : ComponentActivity() {
                     NavigationGraph(
                         navController = navController,
                         bookListViewModel = bookListViewModel,
+                        bookInfoViewModel = bookInfoViewModel,
                         modifier = Modifier.padding(innerPadding))
 
                 }
@@ -50,6 +50,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun NavigationGraph(
     navController: NavHostController, bookListViewModel: BookListViewModel,
+    bookInfoViewModel: BookInfoViewModel,
     modifier: Modifier
 )
 {
@@ -58,17 +59,18 @@ fun NavigationGraph(
         composable(Screen.BookList.route)
         {
             BookListScreen(bookListViewModel = bookListViewModel,
+                bookInfoViewModel = bookInfoViewModel,
                 onNavigateToAddScreen = {navController.navigate(Screen.AddBook.route)},
                 onNavigateToBookInfo = {navController.navigate(Screen.BookInfo.route)})
         }
         composable(Screen.AddBook.route)
         {
-            AddBookScreen(onBookAdded = {}, bookListViewModel = bookListViewModel)
+            AddBookScreen(onBookAdded = {navController.navigate(Screen.BookList.route)}, bookListViewModel = bookListViewModel)
 
         }
         composable(Screen.BookInfo.route)
         {
-            BookInfoScreen()
+            BookInfoScreen(bookInfoViewModel)
         }
     }
 }
