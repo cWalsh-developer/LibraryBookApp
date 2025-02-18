@@ -2,7 +2,6 @@ package com.example.librarybookapp.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import java.util.Date
 
 @Entity(tableName = "books")
 data class Book(

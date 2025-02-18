@@ -8,7 +8,7 @@ import com.example.librarybookapp.model.Book
 import com.example.librarybookapp.model.BookDAO
 
 
-class BookListViewModel(private val database: AppDatabase): ViewModel() {
+class BookListViewModel(database: AppDatabase): ViewModel() {
     private val bookDao: BookDAO = database.bookDao()
 
     private val _bookInfo = mutableStateOf<Book?>(null)

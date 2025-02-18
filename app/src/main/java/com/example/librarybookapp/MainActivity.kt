@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.librarybookapp.ui.theme.LibraryBookAppTheme
@@ -22,7 +21,6 @@ import com.example.librarybookapp.view.BookInfoScreen
 import com.example.librarybookapp.view.BookListScreen
 import com.example.librarybookapp.view.EditBookScreen
 import com.example.librarybookapp.view.Screen
-import com.example.librarybookapp.viewmodel.BookInfoViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
