@@ -20,6 +20,7 @@ import com.example.librarybookapp.model.DatabaseInstance
 import com.example.librarybookapp.view.AddBookScreen
 import com.example.librarybookapp.view.BookInfoScreen
 import com.example.librarybookapp.view.BookListScreen
+import com.example.librarybookapp.view.EditBookScreen
 import com.example.librarybookapp.view.Screen
 import com.example.librarybookapp.viewmodel.BookInfoViewModel
 
@@ -30,7 +31,6 @@ class MainActivity : ComponentActivity() {
         setContent {
             val navController = rememberNavController()
             val bookListViewModel = BookListViewModel(DatabaseInstance.getDatabase(this))
-            val bookInfoViewModel: BookInfoViewModel = viewModel()
 
             LibraryBookAppTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding
@@ -38,7 +38,6 @@ class MainActivity : ComponentActivity() {
                     NavigationGraph(
                         navController = navController,
                         bookListViewModel = bookListViewModel,
-                        bookInfoViewModel = bookInfoViewModel,
                         modifier = Modifier.padding(innerPadding))
 
                 }
@@ -50,7 +49,6 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun NavigationGraph(
     navController: NavHostController, bookListViewModel: BookListViewModel,
-    bookInfoViewModel: BookInfoViewModel,
     modifier: Modifier
 )
 {
@@ -59,18 +57,24 @@ fun NavigationGraph(
         composable(Screen.BookList.route)
         {
             BookListScreen(bookListViewModel = bookListViewModel,
-                bookInfoViewModel = bookInfoViewModel,
                 onNavigateToAddScreen = {navController.navigate(Screen.AddBook.route)},
                 onNavigateToBookInfo = {navController.navigate(Screen.BookInfo.route)})
         }
         composable(Screen.AddBook.route)
         {
-            AddBookScreen(onBookAdded = {navController.navigate(Screen.BookList.route)}, bookListViewModel = bookListViewModel)
+            AddBookScreen(onBookAdded = {navController.navigate(Screen.BookList.route)},
+                bookListViewModel = bookListViewModel)
 
         }
         composable(Screen.BookInfo.route)
         {
-            BookInfoScreen(bookInfoViewModel)
+            BookInfoScreen(bookListViewModel,
+                onDelete = {navController.navigate(Screen.BookList.route)},
+                onEdit = {navController.navigate(Screen.EditBook.route)})
+        }
+        composable(Screen.EditBook.route)
+        {
+            EditBookScreen(bookListViewModel, onSaveChanges = {navController.navigate(Screen.BookList.route)})
         }
     }
 }

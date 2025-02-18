@@ -2,11 +2,14 @@ package com.example.librarybookapp.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import java.util.Date
 
 @Entity(tableName = "books")
-data class Book(val bookTitle: String,
-                val bookAuthor: String,
-                val bookGenre: String,
-                val dateAdded: String,
-                val readingProgress: String,
-                @PrimaryKey(autoGenerate = true) val id: Int = 0)
+data class Book(
+    var bookTitle: String,
+    var bookAuthor: String,
+    var bookGenre: String,
+    var datePublished: String,
+    var dateAdded: String,
+    var readingProgress: String,
+    @PrimaryKey(autoGenerate = true) val id: Int = 0)
