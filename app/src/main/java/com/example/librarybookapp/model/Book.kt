@@ -2,6 +2,7 @@ package com.example.librarybookapp.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import java.time.LocalDate
 
 @Entity(tableName = "books")
 data class Book(
@@ -10,5 +11,5 @@ data class Book(
     var bookGenre: String,
     var datePublished: String,
     var dateAdded: String,
-    var readingProgress: String,
+    var pages: Int,
     @PrimaryKey(autoGenerate = true) val id: Int = 0)

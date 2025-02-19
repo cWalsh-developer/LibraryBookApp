@@ -11,6 +11,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -23,6 +24,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.librarybookapp.model.Book
 import com.example.librarybookapp.viewmodel.BookListViewModel
@@ -62,8 +64,9 @@ fun BookListScreen(bookListViewModel: BookListViewModel,
                     topEnd = 30.dp, bottomEnd = 30.dp)
             )
         }
-        Button(onClick ={onNavigateToAddScreen()}) {
-            Text(text = "Add Book")
+        Button(onClick ={onNavigateToAddScreen()},
+            colors = ButtonDefaults.buttonColors(Color(0xFF6650a4)),) {
+            Text(text = "Add Book", color = Color.White)
         }
 
         LazyColumn(modifier = Modifier.fillMaxWidth()) {

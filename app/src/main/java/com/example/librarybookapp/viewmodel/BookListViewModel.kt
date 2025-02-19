@@ -6,6 +6,9 @@ import androidx.lifecycle.ViewModel
 import com.example.librarybookapp.model.AppDatabase
 import com.example.librarybookapp.model.Book
 import com.example.librarybookapp.model.BookDAO
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeParseException
 
 
 class BookListViewModel(database: AppDatabase): ViewModel() {
@@ -13,6 +16,16 @@ class BookListViewModel(database: AppDatabase): ViewModel() {
 
     private val _bookInfo = mutableStateOf<Book?>(null)
     val bookInfo: State<Book?> = _bookInfo
+
+    fun isValidDate(dateString: String): Boolean {
+        return try {
+            val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+            LocalDate.parse(dateString, formatter)
+            true
+        } catch (e: DateTimeParseException) {
+            false
+        }
+    }
 
     fun setBookInfo(book: Book) {
         _bookInfo.value = book
