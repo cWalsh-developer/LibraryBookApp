@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -10,6 +12,11 @@ android {
     compileSdk = 35
 
     defaultConfig {
+
+        buildConfigField("String", "MAILJET_API_KEY", "\"${getMailJetKey()}\"")
+        buildConfigField("String", "MAILJET_SECRET_API_KEY", "\"${getMailJetSecret()}\"")
+        buildConfigField("String", "MAILJET_EMAIL", "\"${getMailJetEmail()}\"")
+
         applicationId = "com.example.librarybookapp"
         minSdk = 26
         targetSdk = 34
@@ -37,13 +44,33 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
+
 }
+    fun getMailJetKey(): String {
+        val properties = Properties()
+        properties.load(project.rootProject.file("local.properties").inputStream())
+        return properties.getProperty("MAILJET_API_KEY") ?: ""
+    }
+
+    fun getMailJetSecret(): String {
+        val properties = Properties()
+        properties.load(project.rootProject.file("local.properties").inputStream())
+        return properties.getProperty("MAILJET_SECRET_API_KEY") ?: ""
+    }
+
+    fun getMailJetEmail(): String {
+        val properties = Properties()
+        properties.load(project.rootProject.file("local.properties").inputStream())
+        return properties.getProperty("MAILJET_EMAIL") ?: ""
+    }
 
 dependencies {
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     implementation(libs.androidx.navigation.compose)
+    implementation(libs.mailjet.client)
     ksp(libs.androidx.room.ksp)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

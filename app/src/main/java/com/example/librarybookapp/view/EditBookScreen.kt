@@ -39,7 +39,8 @@ fun EditBookScreen(bookListViewModel: BookListViewModel, onSaveChanges: () -> Un
     var bookTitle by remember { mutableStateOf(currentBook!!.bookTitle) }
     var bookAuthor by remember { mutableStateOf(currentBook!!.bookAuthor) }
     var bookGenre by remember { mutableStateOf(currentBook!!.bookGenre) }
-    var bookProgress by remember { mutableIntStateOf(currentBook!!.pages) }
+    var bookProgress by remember { mutableStateOf<Int?>(currentBook!!.progress) }
+    var bookPages by remember { mutableStateOf<Int?>(currentBook!!.pages) }
     var isError by remember { mutableStateOf(false) }
     var isDateError by remember { mutableStateOf(false) }
     var datePickerDialog by remember { mutableStateOf(false) }
@@ -120,16 +121,35 @@ fun EditBookScreen(bookListViewModel: BookListViewModel, onSaveChanges: () -> Un
         )
 
         OutlinedTextField(
-            value = if (bookProgress == 0) "" else bookProgress.toString(),
-            onValueChange = { bookProgress = it.toIntOrNull() ?: 0 },
+            value = if (bookProgress == null) "" else bookProgress.toString(),
+            onValueChange = { bookProgress = it.toIntOrNull()?: null },
             isError = (bookProgress == 0 && isError),
             trailingIcon = {
-                if (bookProgress == 0 && isError) {
+                if (bookProgress == null && isError) {
                     Icon(Icons.Default.Warning, contentDescription = "Error")
                 }
             },
             supportingText = {
-                if (bookProgress == 0 && isError) {
+                if (bookProgress == null && isError) {
+                    Text(text = "Please enter a number of pages read")
+                }
+            },
+            label = { Text("Number of Pages Read") },
+            modifier = Modifier
+                .padding(8.dp)
+                .fillMaxWidth(),
+        )
+        OutlinedTextField(
+            value = if (bookPages == null) "" else bookPages.toString(),
+            onValueChange = { bookPages = it.toIntOrNull()?: null },
+            isError = (bookPages == null && isError),
+            trailingIcon = {
+                if (bookPages == null && isError) {
+                    Icon(Icons.Default.Warning, contentDescription = "Error")
+                }
+            },
+            supportingText = {
+                if (bookPages == 0 && isError) {
                     Text(text = "Please enter a number of pages")
                 }
             },
@@ -147,11 +167,14 @@ fun EditBookScreen(bookListViewModel: BookListViewModel, onSaveChanges: () -> Un
             },
             isError = isDateError || (bookDate.isEmpty() && isError),
             trailingIcon = {
-                IconButton(onClick = { datePickerDialog = true }) {
-                    Icon(Icons.Filled.DateRange, contentDescription = "Date")
-                }
                 if ((bookDate.isEmpty() && isError) || isDateError) {
                     Icon(Icons.Default.Warning, contentDescription = "Error")
+                }
+                else
+                {
+                    IconButton(onClick = { datePickerDialog = true }) {
+                        Icon(Icons.Filled.DateRange, contentDescription = "Date")
+                    }
                 }
             },
             supportingText = {
@@ -170,16 +193,15 @@ fun EditBookScreen(bookListViewModel: BookListViewModel, onSaveChanges: () -> Un
         )
         if (datePickerDialog) {
             // Show date picker dialog
-            ShowDatePicker { selectedDate ->
-                bookDate = selectedDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
-                datePickerDialog = false
-            }
+            ShowDatePicker(onDateSelected = { selectedDate ->
+                bookDate = selectedDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))},
+                onDismiss = { datePickerDialog = false })
         }
 
         Button(onClick = {
             // Update Book in database
             if (bookTitle.isEmpty() || bookAuthor.isEmpty() || bookGenre.isEmpty() ||
-                bookProgress == 0 || bookDate.isEmpty() || isDateError
+                bookProgress == null || bookPages == null || bookDate.isEmpty() || isDateError
             ) {
                 isError = true
                 return@Button
@@ -189,7 +211,8 @@ fun EditBookScreen(bookListViewModel: BookListViewModel, onSaveChanges: () -> Un
                 bookGenre = bookGenre,
                 datePublished = bookDate,
                 dateAdded = currentBook!!.dateAdded,
-                pages = bookProgress,
+                pages = bookPages!!,
+                progress = bookProgress!!,
                 id = currentBook.id)
             coroutineScope.launch {
                 bookListViewModel.updateBook(book)
@@ -197,7 +220,8 @@ fun EditBookScreen(bookListViewModel: BookListViewModel, onSaveChanges: () -> Un
             bookTitle = ""
             bookAuthor = ""
             bookGenre = ""
-            bookProgress = 0
+            bookProgress = null
+            bookPages = null
             bookDate = ""
             isError = false
             isDateError = false

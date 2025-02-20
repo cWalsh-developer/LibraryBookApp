@@ -12,6 +12,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -39,8 +40,9 @@ fun AddBookScreen(onBookAdded: () -> Unit, bookListViewModel: BookListViewModel)
     var bookTitle by remember { mutableStateOf("") }
     var bookAuthor by remember { mutableStateOf("") }
     var bookGenre by remember { mutableStateOf("") }
-    var bookProgress by remember { mutableIntStateOf(0) }
+    var bookProgress by remember { mutableStateOf<Int?>(null) }
     var bookDate by remember { mutableStateOf("") }
+    var bookPages by remember { mutableStateOf<Int?>(null) }
     var isError by remember { mutableStateOf(false) }
     var isDateError by remember { mutableStateOf(false) }
     var datePickerDialog by remember { mutableStateOf(false) }
@@ -121,18 +123,36 @@ fun AddBookScreen(onBookAdded: () -> Unit, bookListViewModel: BookListViewModel)
                 .padding(8.dp)
                 .fillMaxWidth()
         )
-
         OutlinedTextField(
-            value = if (bookProgress == 0) "" else bookProgress.toString(),
-            onValueChange = { bookProgress = it.toIntOrNull() ?: 0 },
-            isError = (bookProgress == 0 && isError),
+            value = if (bookProgress == null) "" else bookProgress.toString(),
+            onValueChange = { bookProgress = it.toIntOrNull()?: null },
+            isError = (bookProgress == null && isError),
             trailingIcon = {
-                if (bookProgress == 0 && isError) {
+                if (bookProgress == null && isError) {
                     Icon(Icons.Default.Warning, contentDescription = "Error")
                 }
             },
             supportingText = {
-                if (bookProgress == 0 && isError) {
+                if (bookProgress == null && isError) {
+                    Text(text = "Please enter a number of pages read")
+                }
+            },
+            label = { Text("Number of Pages Read") },
+            modifier = Modifier
+                .padding(8.dp)
+                .fillMaxWidth(),
+        )
+        OutlinedTextField(
+            value = if (bookPages == null) "" else bookPages.toString(),
+            onValueChange = { bookPages = it.toIntOrNull()?: null },
+            isError = (bookPages == null && isError),
+            trailingIcon = {
+                if (bookPages == null && isError) {
+                    Icon(Icons.Default.Warning, contentDescription = "Error")
+                }
+            },
+            supportingText = {
+                if (bookPages == null && isError) {
                     Text(text = "Please enter a number of pages")
                 }
             },
@@ -150,11 +170,16 @@ fun AddBookScreen(onBookAdded: () -> Unit, bookListViewModel: BookListViewModel)
             },
             isError = isDateError || (bookDate.isEmpty() && isError),
             trailingIcon = {
-                IconButton(onClick = { datePickerDialog = true }) {
-                    Icon(Icons.Filled.DateRange, contentDescription = "Date")
-                }
                 if ((bookDate.isEmpty() && isError) || isDateError) {
-                    Icon(Icons.Default.Warning, contentDescription = "Error")
+                    IconButton(onClick = {datePickerDialog = true}) {
+                        Icon(Icons.Default.Warning, contentDescription = "Error")
+                    }
+                }
+                else
+                {
+                    IconButton(onClick = { datePickerDialog = true }) {
+                        Icon(Icons.Filled.DateRange, contentDescription = "Date")
+                    }
                 }
             },
             supportingText = {
@@ -173,16 +198,15 @@ fun AddBookScreen(onBookAdded: () -> Unit, bookListViewModel: BookListViewModel)
         )
         if (datePickerDialog) {
             // Show date picker dialog
-            ShowDatePicker { selectedDate ->
-                bookDate = selectedDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
-                datePickerDialog = false
-            }
+            ShowDatePicker(onDateSelected = { selectedDate ->
+                bookDate = selectedDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))}
+            , onDismiss = { datePickerDialog = false })
         }
 
         Button(onClick = {
             // Add book to database or perform other actions
             if (bookTitle.isEmpty() || bookAuthor.isEmpty() || bookGenre.isEmpty() ||
-                bookProgress == 0 || bookDate.isEmpty() || isDateError
+                bookProgress == null || bookDate.isEmpty() || isDateError || bookPages == null
             ) {
                 isError = true
                 return@Button
@@ -194,7 +218,8 @@ fun AddBookScreen(onBookAdded: () -> Unit, bookListViewModel: BookListViewModel)
                 bookGenre = bookGenre,
                 datePublished = bookDate,
                 dateAdded = dateAdded,
-                pages = bookProgress
+                pages = bookPages!!,
+                progress = bookProgress!!
             )
             coroutineScope.launch {
                 bookListViewModel.addBook(book)
@@ -203,12 +228,13 @@ fun AddBookScreen(onBookAdded: () -> Unit, bookListViewModel: BookListViewModel)
             bookAuthor = ""
             bookGenre = ""
             bookProgress = 0
+            bookPages = 0
             bookDate = ""
             isError = false
             isDateError = false
             onBookAdded()
-        }) {
-            Text(text = "Add Book")
+        }, colors = ButtonDefaults.buttonColors(Color(0xFF6650a4))) {
+            Text(text = "Add Book", color = Color.White)
         }
     }
 }

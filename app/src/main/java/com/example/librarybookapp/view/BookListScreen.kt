@@ -1,5 +1,6 @@
 package com.example.librarybookapp.view
 
+import androidx.compose.foundation.layout.Arrangement.Absolute.SpaceEvenly
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -9,6 +10,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -36,6 +40,8 @@ fun BookListScreen(bookListViewModel: BookListViewModel,
 {
     var searchQuery by remember { mutableStateOf("") }
     val books = remember { mutableStateListOf<Book>() }
+    var showDialog by remember { mutableStateOf(false) }
+    var changeDialog by remember { mutableStateOf(false) }
 
     val filteredBooks by remember {
         derivedStateOf {
@@ -53,27 +59,50 @@ fun BookListScreen(bookListViewModel: BookListViewModel,
     }
 
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-        Row{
-            TextField(
-                value = searchQuery,
-                onValueChange = { searchQuery = it },
-                label = { Text("Search") },
-                modifier = Modifier.fillMaxWidth(),
-                leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search") },
-                shape = RoundedCornerShape(topStart = 30.dp, bottomStart = 30.dp,
-                    topEnd = 30.dp, bottomEnd = 30.dp)
-            )
+        TextField(
+            value = searchQuery,
+            onValueChange = { searchQuery = it },
+            label = { Text("Search") },
+            modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
+            leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search") },
+            shape = RoundedCornerShape(topStart = 30.dp, bottomStart = 30.dp,
+                topEnd = 30.dp, bottomEnd = 30.dp)
+        )
+        Row(modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
+            horizontalArrangement = SpaceEvenly) {
+            Button(onClick ={onNavigateToAddScreen()},
+                colors = ButtonDefaults.buttonColors(Color(0xFF6650a4))) {
+                Row {
+                    Icon(Icons.Default.Add, contentDescription = "Add",
+                        tint = Color.White)
+                    Text(text = "Add Book", color = Color.White,
+                        modifier = Modifier.padding(start = 10.dp))
+                }
+            }
+            Button(onClick = { showDialog = true },
+                colors = ButtonDefaults.buttonColors(Color(0xFF6650a4))) {
+                Row {
+                    Icon(Icons.Default.Email, contentDescription = "Email",
+                        tint = Color.White)
+                    Text(text = "Email List", color = Color.White,
+                        modifier = Modifier.padding(start = 10.dp))
+                }
+            }
         }
-        Button(onClick ={onNavigateToAddScreen()},
-            colors = ButtonDefaults.buttonColors(Color(0xFF6650a4)),) {
-            Text(text = "Add Book", color = Color.White)
+        if (showDialog) {
+            SendEmailDialog(onDismiss = { showDialog = false }, bookListViewModel = bookListViewModel,
+                onConfirm = {changeDialog = true})
         }
-
+        if (changeDialog)
+        {
+            EmailSuccessDialog(onDismiss = {changeDialog = false}, bookListViewModel = bookListViewModel,
+                onConfirm = {changeDialog = false})
+        }
         LazyColumn(modifier = Modifier.fillMaxWidth()) {
             items(filteredBooks)
             {
                 book ->
-                BookCard(book = book, onInfo = {onNavigateToBookInfo()}, bookListViewModel = bookListViewModel)
+                BookCard(book = book, onInfo = {onNavigateToBookInfo()}, bookListViewModel = bookListViewModel, onProgress = {bookListViewModel.calculateProgress(book)})
             }
         }
     }

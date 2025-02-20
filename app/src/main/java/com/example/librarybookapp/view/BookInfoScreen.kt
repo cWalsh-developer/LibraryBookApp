@@ -50,6 +50,9 @@ fun BookInfoScreen(bookListViewModel: BookListViewModel, onDelete: () -> Unit, o
         Text(text = "Date Added:", modifier = Modifier.padding(start = pad))
         BookInfoCard(currentBook?.dateAdded ?: "")
 
+        Text(text = "Pages Complete: ", modifier = Modifier.padding(start = pad))
+        BookInfoCard((currentBook?.progress ?: "").toString())
+
         Row(horizontalArrangement = Arrangement.SpaceEvenly,
             modifier = Modifier.fillMaxWidth())
         {

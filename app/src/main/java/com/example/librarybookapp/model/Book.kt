@@ -12,4 +12,5 @@ data class Book(
     var datePublished: String,
     var dateAdded: String,
     var pages: Int,
+    var progress: Int,
     @PrimaryKey(autoGenerate = true) val id: Int = 0)

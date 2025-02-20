@@ -20,6 +20,4 @@ interface BookDAO {
 
     @Update
     suspend fun updateBook(book: Book)
-
-
 }

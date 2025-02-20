@@ -10,11 +10,11 @@ import java.util.Calendar
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun ShowDatePicker(onDateSelected: (LocalDate) -> Unit) {
+fun ShowDatePicker(onDateSelected: (LocalDate) -> Unit, onDismiss: () -> Unit) {
     val context = LocalContext.current
     val calender = Calendar.getInstance()
 
-    DatePickerDialog(
+    val datePickerDialog = DatePickerDialog(
         context,
         { _, year, month, dayOfMonth ->
             onDateSelected(LocalDate.of(year, month + 1, dayOfMonth))
@@ -22,5 +22,7 @@ fun ShowDatePicker(onDateSelected: (LocalDate) -> Unit) {
         calender.get(Calendar.YEAR),
         calender.get(Calendar.MONTH),
         calender.get(Calendar.DAY_OF_MONTH)
-    ).show()
+    )
+    datePickerDialog.setOnDismissListener { onDismiss() }
+    datePickerDialog.show()
 }
