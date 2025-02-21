@@ -35,7 +35,9 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun EditBookScreen(bookListViewModel: BookListViewModel, onSaveChanges: () -> Unit)
 {
+
     val currentBook = bookListViewModel.bookInfo.value
+    //state variables
     var bookTitle by remember { mutableStateOf(currentBook!!.bookTitle) }
     var bookAuthor by remember { mutableStateOf(currentBook!!.bookAuthor) }
     var bookGenre by remember { mutableStateOf(currentBook!!.bookGenre) }
@@ -46,6 +48,7 @@ fun EditBookScreen(bookListViewModel: BookListViewModel, onSaveChanges: () -> Un
     var datePickerDialog by remember { mutableStateOf(false) }
     var bookDate by remember { mutableStateOf(currentBook!!.datePublished) }
     val coroutineScope = rememberCoroutineScope()
+
     Column(
         modifier = Modifier
             .fillMaxSize().verticalScroll(rememberScrollState())
@@ -123,7 +126,7 @@ fun EditBookScreen(bookListViewModel: BookListViewModel, onSaveChanges: () -> Un
         OutlinedTextField(
             value = if (bookProgress == null) "" else bookProgress.toString(),
             onValueChange = { bookProgress = it.toIntOrNull() },
-            isError = (bookProgress == 0 && isError),
+            isError = (bookProgress == null && isError),
             trailingIcon = {
                 if (bookProgress == null && isError) {
                     Icon(Icons.Default.Warning, contentDescription = "Error")

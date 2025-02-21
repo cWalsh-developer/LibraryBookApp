@@ -132,15 +132,14 @@ fun AddBookScreen(onBookAdded: () -> Unit, bookListViewModel: BookListViewModel)
                 if (bookProgress == null && isProgressError || bookProgress == null && isError
                     || bookProgress != null && bookPages!= null &&
                     bookProgress!!> bookPages!!) {
-                    Icon(Icons.Default.Warning, contentDescription = "Error", tint = Color(0xFFB42a1f))
+                    Icon(Icons.Default.Warning, contentDescription = "Error")
                 }
             },
             supportingText = {
                 if (bookProgress == null && isError)
-                    Text(text = "Please enter a number of pages read", color = Color(0xFFB42a1f))
+                    Text(text = "Please enter a number of pages read")
                 if(bookProgress != null && bookPages!= null && bookProgress!! > bookPages!!){
-                    Text(text = "Number of pages read cannot be greater than number of pages",
-                        color = Color(0xFFB42a1f))
+                    Text(text = "Number of pages read cannot be greater than number of pages",)
                     isProgressError = true
                 }
             },

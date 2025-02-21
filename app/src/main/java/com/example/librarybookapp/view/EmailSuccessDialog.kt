@@ -22,6 +22,7 @@ import com.example.librarybookapp.viewmodel.BookListViewModel
 @Composable
 fun EmailSuccessDialog(onDismiss: () -> Unit, bookListViewModel: BookListViewModel, onConfirm: () -> Unit)
 {
+    //Dialog for after email sent successfully
     Dialog(onDismissRequest = onDismiss,
         content ={
             Surface(

@@ -12,6 +12,7 @@ fun ShowDatePicker(onDateSelected: (LocalDate) -> Unit, onDismiss: () -> Unit) {
     val context = LocalContext.current
     val calender = Calendar.getInstance()
 
+    //Date picker dialog construction with personal styling
     val datePickerDialog = DatePickerDialog(
         context,
         R.style.DatePickerDialogBackgroundColour,
