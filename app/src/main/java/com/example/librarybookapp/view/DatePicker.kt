@@ -3,6 +3,7 @@ package com.example.librarybookapp.view
 import android.app.DatePickerDialog
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
+import com.example.librarybookapp.R
 import java.time.LocalDate
 import java.util.Calendar
 
@@ -13,6 +14,7 @@ fun ShowDatePicker(onDateSelected: (LocalDate) -> Unit, onDismiss: () -> Unit) {
 
     val datePickerDialog = DatePickerDialog(
         context,
+        R.style.DatePickerDialogBackgroundColour,
         { _, year, month, dayOfMonth ->
             onDateSelected(LocalDate.of(year, month + 1, dayOfMonth))
         },

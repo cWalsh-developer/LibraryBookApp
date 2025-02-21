@@ -11,6 +11,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -121,7 +122,7 @@ fun EditBookScreen(bookListViewModel: BookListViewModel, onSaveChanges: () -> Un
 
         OutlinedTextField(
             value = if (bookProgress == null) "" else bookProgress.toString(),
-            onValueChange = { bookProgress = it.toIntOrNull()?: null },
+            onValueChange = { bookProgress = it.toIntOrNull() },
             isError = (bookProgress == 0 && isError),
             trailingIcon = {
                 if (bookProgress == null && isError) {
@@ -140,7 +141,7 @@ fun EditBookScreen(bookListViewModel: BookListViewModel, onSaveChanges: () -> Un
         )
         OutlinedTextField(
             value = if (bookPages == null) "" else bookPages.toString(),
-            onValueChange = { bookPages = it.toIntOrNull()?: null },
+            onValueChange = { bookPages = it.toIntOrNull() },
             isError = (bookPages == null && isError),
             trailingIcon = {
                 if (bookPages == null && isError) {
@@ -148,7 +149,7 @@ fun EditBookScreen(bookListViewModel: BookListViewModel, onSaveChanges: () -> Un
                 }
             },
             supportingText = {
-                if (bookPages == 0 && isError) {
+                if (bookPages == null && isError) {
                     Text(text = "Please enter a number of pages")
                 }
             },
@@ -225,7 +226,7 @@ fun EditBookScreen(bookListViewModel: BookListViewModel, onSaveChanges: () -> Un
             isError = false
             isDateError = false
             onSaveChanges()
-        })
+        }, colors = ButtonDefaults.buttonColors(Color(0xFF6650a4)))
         {
             Text(text = "Save Changes")
         }

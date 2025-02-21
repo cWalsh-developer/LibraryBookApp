@@ -31,6 +31,9 @@ class BookListViewModel(database: AppDatabase): ViewModel() {
     private val _success = mutableStateOf(false)
     val success: State<Boolean> = _success
 
+    private val _isLoading = mutableStateOf(false)
+    val isLoading: State<Boolean> = _isLoading
+
     private val _email = mutableStateOf("")
     val email: State<String> = _email
 
@@ -91,11 +94,11 @@ class BookListViewModel(database: AppDatabase): ViewModel() {
     fun sendEmail(emailAddress: String, name: String) {
         viewModelScope.launch {
             _success.value = true
+            _isLoading.value = true
             val bookList: List<Book> = bookDao.getAllBooks()
-            val emailSubject = "Book List"
             val emailBody = StringBuilder()
-            emailBody.append("Dear $name,\n\n")
-            emailBody.append("Book List:")
+            emailBody.append("Dear ${name.trim()},\n\n")
+            emailBody.append("Here is your requested Book List:")
             emailBody.append("\n")
             for (book in bookList) {
                 emailBody.append("Title: ${book.bookTitle}\n")
@@ -109,12 +112,12 @@ class BookListViewModel(database: AppDatabase): ViewModel() {
             }
             withContext(Dispatchers.IO)
             {
-                sendWithEmailService(emailAddress, emailSubject, emailBody.toString(), name)
+                sendWithEmailService(emailAddress, emailBody.toString(), name)
             }
         }
     }
 
-    private fun sendWithEmailService(emailAddress: String, emailSubject: String,
+    private fun sendWithEmailService(emailAddress: String,
                                      emailBody: String, name: String)
     {
         val apiKey = BuildConfig.MAILJET_API_KEY
@@ -132,12 +135,13 @@ class BookListViewModel(database: AppDatabase): ViewModel() {
                 Emailv31.Message.FROM,JSONObject().put("Email", mailJetEmail)
                     .put("Name","LibraryBookApp")).put(Emailv31.Message.TO,JSONArray()
                 .put(JSONObject().put("Email", emailAddress).put("Name",name)))
-                .put(Emailv31.Message.SUBJECT, emailSubject).put(Emailv31.Message.TEXTPART, emailBody)))
+                .put(Emailv31.Message.SUBJECT, "Book List").put(Emailv31.Message.TEXTPART, emailBody)))
 
         try {
             val response: MailjetResponse = client.post(request)
             Log.d("MailJet", "Email sent successfully: ${response.status}")
             _success.value = false
+            _isLoading.value = false
             _email.value = emailAddress
         }catch (e: Exception)
         {

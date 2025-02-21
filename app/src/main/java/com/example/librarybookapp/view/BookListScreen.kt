@@ -16,6 +16,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -28,7 +29,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.example.librarybookapp.R
 import com.example.librarybookapp.model.Book
 import com.example.librarybookapp.viewmodel.BookListViewModel
 
@@ -41,14 +45,29 @@ fun BookListScreen(bookListViewModel: BookListViewModel,
     val books = remember { mutableStateListOf<Book>() }
     var showDialog by remember { mutableStateOf(false) }
     var changeDialog by remember { mutableStateOf(false) }
+    var isSorted by remember { mutableStateOf(false) }
 
-    val filteredBooks by remember {
-        derivedStateOf {
-            if (searchQuery.isBlank()) {
+    val filteredBooks by remember{
+        derivedStateOf{
+            if (searchQuery.isBlank())
+            {
                 books
+            } else
+            {
+                books.filter { it.bookGenre.contains(searchQuery, ignoreCase = true) ||
+                        bookListViewModel.calculateProgressPercentage(it).contains(searchQuery,
+                            ignoreCase = true) || it.progress.toString().contains(searchQuery,
+                            ignoreCase = true)}
+            }
+        }
+    }
+
+    val sortedBooks by remember {
+        derivedStateOf {
+            if (isSorted) {
+                filteredBooks.sortedBy { it.bookTitle }
             } else {
-                books.filter { it.bookTitle.contains(searchQuery, ignoreCase = true) ||
-                        it.bookAuthor.contains(searchQuery, ignoreCase = true) }
+                filteredBooks
             }
         }
     }
@@ -61,14 +80,21 @@ fun BookListScreen(bookListViewModel: BookListViewModel,
         TextField(
             value = searchQuery,
             onValueChange = { searchQuery = it },
-            label = { Text("Search") },
+            label = { Text("Search by genre or reading progress", fontSize = 14.5.sp) },
             modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
             leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search") },
-            shape = RoundedCornerShape(topStart = 30.dp, bottomStart = 30.dp,
-                topEnd = 30.dp, bottomEnd = 30.dp)
+            trailingIcon = {
+                IconButton(onClick = {isSorted = !isSorted}) {
+                    Icon(painter = painterResource(id = R.drawable.ic_sort),
+                        contentDescription = "Filter")}
+                },
+            shape = RoundedCornerShape(topStart = 30.dp, bottomStart = 30.dp, topEnd = 30.dp,
+                bottomEnd = 30.dp)
         )
+
         Row(modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
-            horizontalArrangement = SpaceEvenly) {
+            horizontalArrangement = SpaceEvenly)
+        {
             Button(onClick ={onNavigateToAddScreen()},
                 colors = ButtonDefaults.buttonColors(Color(0xFF6650a4))) {
                 Row {
@@ -79,6 +105,7 @@ fun BookListScreen(bookListViewModel: BookListViewModel,
                 }
             }
             Button(onClick = { showDialog = true },
+                enabled = !books.isEmpty(),
                 colors = ButtonDefaults.buttonColors(Color(0xFF6650a4))) {
                 Row {
                     Icon(Icons.Default.Email, contentDescription = "Email",
@@ -88,7 +115,9 @@ fun BookListScreen(bookListViewModel: BookListViewModel,
                 }
             }
         }
-        if (showDialog) {
+
+        if (showDialog)
+        {
             SendEmailDialog(onDismiss = { showDialog = false }, bookListViewModel = bookListViewModel,
                 onConfirm = {changeDialog = true})
         }
@@ -97,14 +126,13 @@ fun BookListScreen(bookListViewModel: BookListViewModel,
             EmailSuccessDialog(onDismiss = {changeDialog = false}, bookListViewModel = bookListViewModel,
                 onConfirm = {changeDialog = false})
         }
-        LazyColumn(modifier = Modifier.fillMaxWidth()) {
-            items(filteredBooks)
+        LazyColumn(modifier = Modifier.fillMaxWidth())
+        {
+            items(sortedBooks)
             {
                 book ->
                 BookCard(book = book, onInfo = {onNavigateToBookInfo()}, bookListViewModel = bookListViewModel, onProgress = {bookListViewModel.calculateProgress(book)})
             }
         }
     }
-
-
 }
