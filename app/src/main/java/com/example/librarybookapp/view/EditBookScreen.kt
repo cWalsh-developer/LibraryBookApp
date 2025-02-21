@@ -228,7 +228,7 @@ fun EditBookScreen(bookListViewModel: BookListViewModel, onSaveChanges: () -> Un
             onSaveChanges()
         }, colors = ButtonDefaults.buttonColors(Color(0xFF6650a4)))
         {
-            Text(text = "Save Changes")
+            Text(text = "Save Changes", color = Color.White)
         }
     }
 }
