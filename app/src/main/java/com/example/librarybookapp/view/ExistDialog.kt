@@ -17,13 +17,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.example.librarybookapp.model.Book
 import com.example.librarybookapp.viewmodel.BookListViewModel
 
 @Composable
-fun EmailSuccessDialog(onDismiss: () -> Unit, bookListViewModel: BookListViewModel,
-                       onConfirm: () -> Unit, emailSent: String)
+fun ExistDialog(onDismiss: () -> Unit, existingBook: Book,
+                onConfirm: () -> Unit)
 {
-    //Dialog for after email sent successfully
     Dialog(onDismissRequest = onDismiss,
         content ={
             Surface(
@@ -38,18 +38,15 @@ fun EmailSuccessDialog(onDismiss: () -> Unit, bookListViewModel: BookListViewMod
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     Text(
-                        text = "Email Sent",
+                        text = "Add Book Error",
                         color = Color(0xFF6650a4),
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold)
 
-                    Text("Email sent to ${bookListViewModel.email.value}",
+                    Text("${existingBook.bookTitle} by ${existingBook.bookAuthor} Already Exists in Library",
                         color = Color.DarkGray,
                         style = MaterialTheme.typography.labelLarge)
 
-                    Text("Please allow up to 2 minutes for email to arrive",
-                        color = Color.DarkGray,
-                        style = MaterialTheme.typography.labelLarge)
                     Button(onClick = onConfirm, colors = ButtonDefaults.buttonColors(Color(0xFF6650a4)))
                     {
                         Text(text = "OK", color = Color.White)

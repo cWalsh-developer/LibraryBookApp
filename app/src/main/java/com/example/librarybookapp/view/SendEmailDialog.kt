@@ -39,7 +39,7 @@ import com.example.librarybookapp.viewmodel.BookListViewModel
 fun SendEmailDialog(
     onDismiss: () -> Unit,
     bookListViewModel: BookListViewModel,
-    onConfirm: () -> Unit
+    onConfirm: () -> Unit,
 ) {
     var emailAddress by remember { mutableStateOf("") }
     var name by remember { mutableStateOf("") }
@@ -140,6 +140,7 @@ fun SendEmailDialog(
                     if (success) {
                         onConfirm()
                         onDismiss()
+                        bookListViewModel.isChecked = false
                     }
                 }
             }

@@ -15,6 +15,9 @@ import com.mailjet.client.MailjetRequest
 import com.mailjet.client.MailjetResponse
 import com.mailjet.client.resource.Emailv31
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
@@ -37,8 +40,15 @@ class BookListViewModel(database: AppDatabase): ViewModel() {
     private val _email = mutableStateOf("")
     val email: State<String> = _email
 
+    private val book: MutableList<Book> = mutableListOf()
+
     private val _bookInfo = mutableStateOf<Book?>(null)
     val bookInfo: State<Book?> = _bookInfo
+
+    private val _bookList = MutableStateFlow(emptyList<Book?>())
+    val bookList = _bookList.asStateFlow()
+
+    var isChecked: Boolean = false
 
     fun isValidDate(dateString: String): Boolean {
         return try {
@@ -48,6 +58,28 @@ class BookListViewModel(database: AppDatabase): ViewModel() {
         } catch (e: DateTimeParseException) {
             false
         }
+    }
+
+    fun setCustomListById(id: Int){
+        val bookToAdd = bookDao.getBookById(id)
+        if (bookToAdd != null)
+        {
+            if (isChecked)
+            {
+                if (!book.contains(bookToAdd))
+                {
+                    book.add(bookToAdd)
+                }
+            }
+            else
+            {
+                    book.remove(bookToAdd)
+            }
+        }
+    }
+
+    private fun getCustomList(): List<Book> {
+        return book
     }
 
     fun calculateProgress(book: Book): Float {
@@ -80,8 +112,28 @@ class BookListViewModel(database: AppDatabase): ViewModel() {
         return bookDao.getAllBooks()
     }
 
-    suspend fun addBook(book: Book) {
-        bookDao.insertBook(book)
+    fun addBook(book: Book) {
+        viewModelScope.launch {
+            bookDao.insertBook(book)
+        }
+    }
+
+    fun getBookByTitle(book: Book) {
+        viewModelScope.launch {
+            bookDao.getBookByTitle(book.bookTitle, book.bookAuthor)
+                .flowOn(Dispatchers.IO).collect(){books: List<Book?> ->
+                    _bookList.value = listOf(books.first())
+                    if (books.isEmpty())
+                    {
+                        addBook(book)
+                    }
+                }
+        }
+    }
+
+    fun clearBookList()
+    {
+        _bookList.value = emptyList()
     }
 
     suspend fun deleteBook(id: Int) {
@@ -95,10 +147,12 @@ class BookListViewModel(database: AppDatabase): ViewModel() {
         viewModelScope.launch {
             _success.value = true
             _isLoading.value = true
-            val bookList: List<Book> = bookDao.getAllBooks()
+            val bookList: List<Book> = getCustomList().ifEmpty {
+                bookDao.getAllBooks()
+            }
             val emailBody = StringBuilder()
             emailBody.append("Dear ${name.trim()},\n\n")
-            emailBody.append("Here is your requested Book List:")
+            emailBody.append("Here is your requested Book List:\n")
             emailBody.append("\n")
             for (book in bookList) {
                 emailBody.append("Title: ${book.bookTitle}\n")
@@ -114,6 +168,8 @@ class BookListViewModel(database: AppDatabase): ViewModel() {
             {
                 sendWithEmailService(emailAddress, emailBody.toString(), name)
             }
+            book.clear()
+            isChecked = false
         }
     }
 

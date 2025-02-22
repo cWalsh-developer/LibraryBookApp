@@ -124,14 +124,16 @@ fun BookListScreen(bookListViewModel: BookListViewModel,
         if (changeDialog)
         {
             EmailSuccessDialog(onDismiss = {changeDialog = false}, bookListViewModel = bookListViewModel,
-                onConfirm = {changeDialog = false})
+                onConfirm = {changeDialog = false}, "Email Sent")
         }
         LazyColumn(modifier = Modifier.fillMaxWidth())
         {
             items(sortedBooks)
             {
                 book ->
-                BookCard(book = book, onInfo = {onNavigateToBookInfo()}, bookListViewModel = bookListViewModel, onProgress = {bookListViewModel.calculateProgress(book)})
+                BookCard(book = book, onInfo = {onNavigateToBookInfo()},
+                    bookListViewModel = bookListViewModel,
+                    onProgress = {bookListViewModel.calculateProgress(book)})
             }
         }
     }
