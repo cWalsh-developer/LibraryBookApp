@@ -46,6 +46,7 @@ fun EditBookScreen(bookListViewModel: BookListViewModel, onSaveChanges: () -> Un
     var isError by remember { mutableStateOf(false) }
     var isDateError by remember { mutableStateOf(false) }
     var datePickerDialog by remember { mutableStateOf(false) }
+    var isProgressError by remember { mutableStateOf(false) }
     var bookDate by remember { mutableStateOf(currentBook!!.datePublished) }
     val coroutineScope = rememberCoroutineScope()
 
@@ -125,16 +126,22 @@ fun EditBookScreen(bookListViewModel: BookListViewModel, onSaveChanges: () -> Un
 
         OutlinedTextField(
             value = if (bookProgress == null) "" else bookProgress.toString(),
-            onValueChange = { bookProgress = it.toIntOrNull() },
-            isError = (bookProgress == null && isError),
+            onValueChange = { bookProgress = it.toIntOrNull()
+                isProgressError = false},
+            isError = (bookProgress == null && isError|| isProgressError),
             trailingIcon = {
-                if (bookProgress == null && isError) {
+                if (bookProgress == null && isProgressError || bookProgress == null && isError
+                    || bookProgress != null && bookPages!= null &&
+                    bookProgress!!> bookPages!!) {
                     Icon(Icons.Default.Warning, contentDescription = "Error")
                 }
             },
             supportingText = {
-                if (bookProgress == null && isError) {
+                if (bookProgress == null && isError)
                     Text(text = "Please enter a number of pages read")
+                if(bookProgress != null && bookPages!= null && bookProgress!! > bookPages!!){
+                    Text(text = "Number of pages read cannot be greater than number of pages",)
+                    isProgressError = true
                 }
             },
             label = { Text("Number of Pages Read") },
@@ -144,7 +151,8 @@ fun EditBookScreen(bookListViewModel: BookListViewModel, onSaveChanges: () -> Un
         )
         OutlinedTextField(
             value = if (bookPages == null) "" else bookPages.toString(),
-            onValueChange = { bookPages = it.toIntOrNull() },
+            onValueChange = { bookPages = it.toIntOrNull()
+                            isProgressError = false},
             isError = (bookPages == null && isError),
             trailingIcon = {
                 if (bookPages == null && isError) {
@@ -205,6 +213,7 @@ fun EditBookScreen(bookListViewModel: BookListViewModel, onSaveChanges: () -> Un
             // Update Book in database
             if (bookTitle.isEmpty() || bookAuthor.isEmpty() || bookGenre.isEmpty() ||
                 bookProgress == null || bookPages == null || bookDate.isEmpty() || isDateError
+                || bookProgress!! > bookPages!!
             ) {
                 isError = true
                 return@Button
@@ -220,14 +229,6 @@ fun EditBookScreen(bookListViewModel: BookListViewModel, onSaveChanges: () -> Un
             coroutineScope.launch {
                 bookListViewModel.updateBook(book)
             }
-            bookTitle = ""
-            bookAuthor = ""
-            bookGenre = ""
-            bookProgress = null
-            bookPages = null
-            bookDate = ""
-            isError = false
-            isDateError = false
             onSaveChanges()
         }, colors = ButtonDefaults.buttonColors(Color(0xFF6650a4)))
         {

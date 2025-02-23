@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
@@ -29,9 +31,10 @@ fun BookInfoScreen(bookListViewModel: BookListViewModel, onDelete: () -> Unit, o
     val currentBook = bookListViewModel.bookInfo.value
     var showDialog by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
+    val scrollState = rememberScrollState()
     val pad = 16.dp
 
-    Column(modifier = Modifier.fillMaxSize().padding(top = 30.dp)) {
+    Column(modifier = Modifier.fillMaxSize().padding(top = 30.dp).verticalScroll(scrollState)) {
         Text(text = "Book Title: ", modifier = Modifier.padding(start = pad))
         BookInfoCard(currentBook?.bookTitle ?: "")
 
@@ -54,7 +57,7 @@ fun BookInfoScreen(bookListViewModel: BookListViewModel, onDelete: () -> Unit, o
         BookInfoCard((currentBook?.progress ?: "").toString())
 
         Row(horizontalArrangement = Arrangement.SpaceEvenly,
-            modifier = Modifier.fillMaxWidth())
+            modifier = Modifier.fillMaxWidth().padding(bottom = 20.dp))
         {
             Button(onClick = {onEdit()},
                 modifier = Modifier.padding(top = 10.dp,

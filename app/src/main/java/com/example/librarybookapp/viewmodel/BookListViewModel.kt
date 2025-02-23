@@ -16,6 +16,7 @@ import com.mailjet.client.MailjetResponse
 import com.mailjet.client.resource.Emailv31
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
@@ -45,8 +46,25 @@ class BookListViewModel(database: AppDatabase): ViewModel() {
     private val _bookInfo = mutableStateOf<Book?>(null)
     val bookInfo: State<Book?> = _bookInfo
 
-    private val _bookList = MutableStateFlow(emptyList<Book?>())
-    val bookList = _bookList.asStateFlow()
+    private val _bookToDisplay = MutableStateFlow<Book?>(null)
+    val bookToDisplay: StateFlow<Book?> = _bookToDisplay.asStateFlow()
+
+    private val _showDialog = MutableStateFlow(false)
+    val showDialog: StateFlow<Boolean> = _showDialog
+
+    private val _isEmailEmpty = mutableStateOf(true)
+    val isEmailEmpty: State<Boolean> = _isEmailEmpty
+
+    private val _isEmailValid = mutableStateOf(false)
+    val isEmailValid: State<Boolean> = _isEmailValid
+
+    private val _isNameValid = mutableStateOf(false)
+
+    private val _isNameEmpty = mutableStateOf(true)
+    val isNameEmpty: State<Boolean> = _isNameEmpty
+
+    private val _isSubmitted = mutableStateOf(false)
+    val isSubmitted: State<Boolean> = _isSubmitted
 
     var isChecked: Boolean = false
 
@@ -58,6 +76,26 @@ class BookListViewModel(database: AppDatabase): ViewModel() {
         } catch (e: DateTimeParseException) {
             false
         }
+    }
+
+    private fun isEmailValid(email: String): Boolean {
+        val emailRegex = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$".toRegex()
+        return email.matches(emailRegex) && email.trim().isNotEmpty()
+    }
+
+    private fun isValidName(name: String): Boolean {
+        val nameRegex = "^[A-Za-z\\s'-]{2,}$".toRegex()
+        return name.matches(nameRegex) && name.trim().isNotEmpty()
+    }
+
+    fun formatString(input: String): String {
+        return input.trim().lowercase()
+            .split("(?<=[\\s'-.])|(?=[\\s'-.])".toRegex()) // Splits but keeps punctuation
+            .joinToString("") { word ->
+                if (word.isNotEmpty() && word[0].isLetter()) {
+                    word.replaceFirstChar { it.uppercase() } // Capitalize first letter of each word
+                } else word // Keep punctuation and spaces unchanged
+            }
     }
 
     fun setCustomListById(id: Int){
@@ -112,19 +150,25 @@ class BookListViewModel(database: AppDatabase): ViewModel() {
         return bookDao.getAllBooks()
     }
 
-    fun addBook(book: Book) {
+    private fun addBook(book: Book) {
         viewModelScope.launch {
             bookDao.insertBook(book)
         }
     }
 
-    fun getBookByTitle(book: Book) {
+    fun getBookByTitle(book: Book, onBookFound: (Book?) -> Unit) {
         viewModelScope.launch {
             bookDao.getBookByTitle(book.bookTitle, book.bookAuthor)
                 .flowOn(Dispatchers.IO).collect(){books: List<Book?> ->
-                    _bookList.value = listOf(books.first())
-                    if (books.isEmpty())
+                    if (books.isNotEmpty())
                     {
+                        _showDialog.value = true
+                        _bookToDisplay.value = books.first()
+                        onBookFound(books.first())
+                    }
+                    else
+                    {
+                        onBookFound(null)
                         addBook(book)
                     }
                 }
@@ -133,7 +177,21 @@ class BookListViewModel(database: AppDatabase): ViewModel() {
 
     fun clearBookList()
     {
-        _bookList.value = emptyList()
+        _bookToDisplay.value = null
+
+    }
+
+    fun clearShowDialog()
+    {
+        _showDialog.value = false
+    }
+    fun resetCredentials()
+    {
+        _isEmailEmpty.value = true
+        _isNameEmpty.value = true
+        _isEmailValid.value = false
+        _isNameValid.value = false
+        _isSubmitted.value = false
     }
 
     suspend fun deleteBook(id: Int) {
@@ -144,6 +202,15 @@ class BookListViewModel(database: AppDatabase): ViewModel() {
         bookDao.updateBook(book)
     }
     fun sendEmail(emailAddress: String, name: String) {
+        _isSubmitted.value = true
+        _isEmailEmpty.value = emailAddress.trim().isEmpty()
+        _isNameEmpty.value = name.trim().isEmpty()
+        _isEmailValid.value = !isEmailValid(emailAddress)
+        _isNameValid.value = !isValidName(name)
+        if (_isEmailEmpty.value || _isNameEmpty.value || _isEmailValid.value || _isNameValid.value)
+        {
+            return
+        }
         viewModelScope.launch {
             _success.value = true
             _isLoading.value = true
@@ -151,7 +218,7 @@ class BookListViewModel(database: AppDatabase): ViewModel() {
                 bookDao.getAllBooks()
             }
             val emailBody = StringBuilder()
-            emailBody.append("Dear ${name.trim()},\n\n")
+            emailBody.append("Dear ${formatString(name)},\n\n")
             emailBody.append("Here is your requested Book List:\n")
             emailBody.append("\n")
             for (book in bookList) {

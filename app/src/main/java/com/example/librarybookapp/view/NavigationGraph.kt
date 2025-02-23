@@ -21,19 +21,24 @@ fun NavigationGraph(
         }
         composable(Screen.AddBook.route)
         {
-            AddBookScreen(onBookAdded = {navController.navigate(Screen.BookList.route)},
+            AddBookScreen(onBookAdded = {navController.popBackStack()},
                 bookListViewModel = bookListViewModel)
 
         }
         composable(Screen.BookInfo.route)
         {
             BookInfoScreen(bookListViewModel,
-                onDelete = {navController.navigate(Screen.BookList.route)},
+                onDelete = {navController.popBackStack()},
                 onEdit = {navController.navigate(Screen.EditBook.route)})
         }
         composable(Screen.EditBook.route)
         {
-            EditBookScreen(bookListViewModel, onSaveChanges = {navController.navigate(Screen.BookList.route)})
+            EditBookScreen(bookListViewModel, onSaveChanges = {
+                navController.navigate(Screen.BookList.route)
+                {
+                    popUpTo(0){inclusive = true}
+                }
+            })
         }
     }
 }

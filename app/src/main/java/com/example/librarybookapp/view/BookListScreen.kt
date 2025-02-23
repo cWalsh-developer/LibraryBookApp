@@ -74,6 +74,8 @@ fun BookListScreen(bookListViewModel: BookListViewModel,
 
     LaunchedEffect(Unit) {
         books.addAll(bookListViewModel.getBooks())
+        bookListViewModel.clearBookList()
+        bookListViewModel.clearShowDialog()
     }
 
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
@@ -118,8 +120,10 @@ fun BookListScreen(bookListViewModel: BookListViewModel,
 
         if (showDialog)
         {
-            SendEmailDialog(onDismiss = { showDialog = false }, bookListViewModel = bookListViewModel,
-                onConfirm = {changeDialog = true})
+            SendEmailDialog(onDismiss = { showDialog = false
+                                        bookListViewModel.resetCredentials()}, bookListViewModel = bookListViewModel,
+                onConfirm = {changeDialog = true
+                bookListViewModel.resetCredentials()})
         }
         if (changeDialog)
         {

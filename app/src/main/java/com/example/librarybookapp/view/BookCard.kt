@@ -17,7 +17,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -85,15 +84,21 @@ fun BookCard(
                     modifier = Modifier.padding(start = 8.dp)
                 )
             }
-            Checkbox(isChecked, onCheckedChange = {
-                isChecked = it
-                bookListViewModel.isChecked = isChecked
-                CoroutineScope(Dispatchers.IO).launch {
-                    bookListViewModel.setCustomListById(book.id)
-                }
-            },
-                modifier = Modifier.padding(start = 290.dp),
-                colors = CheckboxDefaults.colors(Color(0xFF1f960f), Color.White, Color.White))
+            Row(modifier= Modifier.fillMaxWidth().padding(start = 125.dp), horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.CenterVertically)
+            {
+                Text("Add to Custom Email List", color = Color.White,
+                    modifier = Modifier.clickable { isChecked = !isChecked },
+                    style = TextStyle(fontSize = 13.2.sp))
+                Checkbox(isChecked, onCheckedChange = {
+                    isChecked = it
+                    bookListViewModel.isChecked = isChecked
+                    CoroutineScope(Dispatchers.IO).launch {
+                        bookListViewModel.setCustomListById(book.id)
+                    }
+                },
+                    colors = CheckboxDefaults.colors(Color(0xFF1f960f), Color.White, Color.White))
+            }
         }
     }
     if(bookListViewModel.success.value)

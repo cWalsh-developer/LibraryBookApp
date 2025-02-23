@@ -19,11 +19,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,9 +30,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.librarybookapp.model.Book
 import com.example.librarybookapp.viewmodel.BookListViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -50,17 +45,9 @@ fun AddBookScreen(onBookAdded: () -> Unit, bookListViewModel: BookListViewModel)
     var isProgressError by remember { mutableStateOf(false) }
     var isDateError by remember { mutableStateOf(false) }
     var datePickerDialog by remember { mutableStateOf(false) }
-    var showDialog by remember { mutableStateOf(false) }
-    val bookList by bookListViewModel.bookList.collectAsStateWithLifecycle()
-    var existingBook by remember { mutableStateOf<Book?>(null) }
-    val coroutineScope = rememberCoroutineScope()
+    val showDialog by bookListViewModel.showDialog.collectAsStateWithLifecycle()
+    val bookToDisplay by bookListViewModel.bookToDisplay.collectAsStateWithLifecycle()
 
-    LaunchedEffect(bookList) {
-        if (bookList.isNotEmpty()) {
-            existingBook = bookList.first()
-            showDialog = true
-        }
-    }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -140,7 +127,7 @@ fun AddBookScreen(onBookAdded: () -> Unit, bookListViewModel: BookListViewModel)
             value = if (bookProgress == null) "" else bookProgress.toString(),
             onValueChange = { bookProgress = it.toIntOrNull()
                             isProgressError = false},
-            isError = (bookProgress == null && isError),
+            isError = (bookProgress == null && isError || isProgressError),
             trailingIcon = {
                 if (bookProgress == null && isProgressError || bookProgress == null && isError
                     || bookProgress != null && bookPages!= null &&
@@ -163,7 +150,7 @@ fun AddBookScreen(onBookAdded: () -> Unit, bookListViewModel: BookListViewModel)
         )
         OutlinedTextField(
             value = if (bookPages == null) "" else bookPages.toString(),
-            onValueChange = { bookPages = it.toIntOrNull() },
+            onValueChange = { bookPages = it.toIntOrNull(); isProgressError = false},
             isError = (bookPages == null && isError),
             trailingIcon = {
                 if (bookPages == null && isError) {
@@ -233,16 +220,21 @@ fun AddBookScreen(onBookAdded: () -> Unit, bookListViewModel: BookListViewModel)
             }
             val dateAdded = LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
             val book = Book(
-                bookTitle = bookTitle.trim(),
-                bookAuthor = bookAuthor.trim(),
-                bookGenre = bookGenre.trim(),
+                bookTitle = bookListViewModel.formatString(bookTitle.trim()),
+                bookAuthor = bookListViewModel.formatString(bookAuthor.trim()),
+                bookGenre = bookListViewModel.formatString(bookGenre.trim()),
                 datePublished = bookDate.trim(),
                 dateAdded = dateAdded.trim(),
                 pages = bookPages!!,
                 progress = bookProgress!!
             )
-            coroutineScope.launch{
-                bookListViewModel.getBookByTitle(book)
+            bookListViewModel.getBookByTitle(book) { existingBook ->
+                if (existingBook ==null)
+                {
+                    isError = false
+                    isDateError = false
+                    onBookAdded()
+                }
             }
 
         }, colors = ButtonDefaults.buttonColors(Color(0xFF6650a4))) {
@@ -250,20 +242,20 @@ fun AddBookScreen(onBookAdded: () -> Unit, bookListViewModel: BookListViewModel)
         }
         if(showDialog)
         {
-            ExistDialog(
-                onDismiss =
-                {
-                    showDialog = false
-                    existingBook = null
-                    bookListViewModel.clearBookList()
-                }, existingBook!!,
-                onConfirm =
-                {
-                    showDialog = false
-                    existingBook = null
-                    bookListViewModel.clearBookList()
-                    onBookAdded()
-                })
+            bookToDisplay?.let {
+                ExistDialog(
+                    onDismiss =
+                    {
+                        bookListViewModel.clearShowDialog()
+                        bookListViewModel.clearBookList()
+                    },it,
+                    onConfirm =
+                    {
+                        bookListViewModel.clearShowDialog()
+                        bookListViewModel.clearBookList()
+                        onBookAdded()
+                    })
+            }
         }
     }
 }

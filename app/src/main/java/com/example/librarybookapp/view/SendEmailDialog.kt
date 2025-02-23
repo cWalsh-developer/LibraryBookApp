@@ -7,9 +7,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -76,7 +79,8 @@ fun SendEmailDialog(
                 )
                 TextField(
                     value = emailAddress,
-                    onValueChange = { emailAddress = it },
+                    onValueChange = { emailAddress = it
+                        bookListViewModel.resetCredentials()},
                     modifier = Modifier.fillMaxWidth(),
                     label = { Text("Email") },
                     colors = TextFieldDefaults.colors(
@@ -92,9 +96,36 @@ fun SendEmailDialog(
                     shape = RoundedCornerShape(10.dp),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email,
                         imeAction = ImeAction.Next),
-                    keyboardActions = KeyboardActions(onNext = {focusManager.moveFocus(FocusDirection.Down)})
+                    keyboardActions = KeyboardActions(onNext = {focusManager.moveFocus(FocusDirection.Down)}),
+                    isError = bookListViewModel.isSubmitted.value &&
+                            bookListViewModel.isEmailEmpty.value ||
+                            bookListViewModel.isEmailValid.value,
+                    supportingText = {
+                        if(bookListViewModel.isSubmitted.value)
+                        {
+                            when{
+                                bookListViewModel.isEmailEmpty.value ->
+                                    Text(
+                                        text = "Please enter an email address",
+                                        style = MaterialTheme.typography.labelSmall
+                                    )
+                                bookListViewModel.isEmailValid.value ->
+                                    Text(
+                                        text = "Please enter a valid email address",
+                                        style = MaterialTheme.typography.labelSmall
+                                    )
+                            }
+                        }
+                    },
+                    trailingIcon = {
+                        if (bookListViewModel.isSubmitted.value
+                            && bookListViewModel.isEmailEmpty.value ||
+                            bookListViewModel.isEmailValid.value)
+                        {
+                            Icon(Icons.Filled.Warning, contentDescription = "Error")
+                        }
+                    }
                 )
-
                 Text(
                     text = "Enter Recipient Name",
                     color = Color.DarkGray,
@@ -102,7 +133,8 @@ fun SendEmailDialog(
                 )
                 TextField(
                     value = name,
-                    onValueChange = { name = it },
+                    onValueChange = { name = it
+                        bookListViewModel.resetCredentials() },
                     modifier = Modifier.fillMaxWidth(),
                     label = { Text("Name") },
                     colors = TextFieldDefaults.colors(
@@ -117,17 +149,29 @@ fun SendEmailDialog(
                     ),
                     shape = RoundedCornerShape(10.dp),
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
-                    keyboardActions = KeyboardActions(onSend = {bookListViewModel.sendEmail(emailAddress, name)
-                    if(success)
-                    {
-                        onConfirm()
-                        onDismiss()
-                    }})
+                    keyboardActions = KeyboardActions(onSend = {bookListViewModel.sendEmail(emailAddress.trim(),
+                        name.trim())}),
+                    isError = bookListViewModel.isSubmitted.value && bookListViewModel.isNameEmpty.value,
+                    supportingText = {
+                        if(bookListViewModel.isSubmitted.value && bookListViewModel.isNameEmpty.value)
+                        {
+                            Text(
+                                text = "Please enter a name",
+                                style = MaterialTheme.typography.labelSmall
+                            )
+                        }
+                    },
+                    trailingIcon = {
+                        if (bookListViewModel.isSubmitted.value
+                            && bookListViewModel.isNameEmpty.value) {
+                            Icon(Icons.Filled.Warning, contentDescription = "Error")
+                        }
+                    }
                 )
 
                 Button(
                     onClick = {
-                        bookListViewModel.sendEmail(emailAddress, name)
+                        bookListViewModel.sendEmail(emailAddress.trim(), name.trim())
                     },
                     colors = ButtonDefaults.buttonColors(Color(0xFF6650a4)),
                     modifier = Modifier.fillMaxWidth()
@@ -141,6 +185,7 @@ fun SendEmailDialog(
                         onConfirm()
                         onDismiss()
                         bookListViewModel.isChecked = false
+                        bookListViewModel.resetCredentials()
                     }
                 }
             }
