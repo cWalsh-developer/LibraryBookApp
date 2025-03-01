@@ -3,6 +3,7 @@ package com.example.librarybookapp.model
 import android.content.Context
 import androidx.room.Room
 
+//Singleton database instance
 object DatabaseInstance {
     private var INSTANCE: AppDatabase? = null
 

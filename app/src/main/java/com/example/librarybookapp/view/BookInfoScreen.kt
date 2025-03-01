@@ -33,7 +33,7 @@ fun BookInfoScreen(bookListViewModel: BookListViewModel, onDelete: () -> Unit, o
     val coroutineScope = rememberCoroutineScope()
     val scrollState = rememberScrollState()
     val pad = 16.dp
-
+//Column for bookinfo screen featuring individual book info cards
     Column(modifier = Modifier.fillMaxSize().padding(top = 30.dp).verticalScroll(scrollState)) {
         Text(text = "Book Title: ", modifier = Modifier.padding(start = pad))
         BookInfoCard(currentBook?.bookTitle ?: "")
@@ -81,6 +81,7 @@ fun BookInfoScreen(bookListViewModel: BookListViewModel, onDelete: () -> Unit, o
                 }
             }
         }
+        //Confirmation dialog logic for displaying the dialog and deleting the book
         if (showDialog) {
             ConfirmationDialog(
                 onDismiss = { showDialog = false },

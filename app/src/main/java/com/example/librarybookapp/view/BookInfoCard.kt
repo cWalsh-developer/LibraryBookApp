@@ -14,6 +14,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun BookInfoCard(bookInfo:String)
 {
+    //Card for displaying book information from passed parameter
     Card(
         modifier = Modifier.fillMaxWidth()
             .padding(8.dp),

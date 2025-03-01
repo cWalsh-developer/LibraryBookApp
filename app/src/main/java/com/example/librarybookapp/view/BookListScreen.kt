@@ -41,12 +41,14 @@ fun BookListScreen(bookListViewModel: BookListViewModel,
                    onNavigateToAddScreen: () -> Unit,
                    onNavigateToBookInfo: () -> Unit)
 {
+    //State variables
     var searchQuery by remember { mutableStateOf("") }
     val books = remember { mutableStateListOf<Book>() }
     var showDialog by remember { mutableStateOf(false) }
     var changeDialog by remember { mutableStateOf(false) }
     var isSorted by remember { mutableStateOf(false) }
 
+    //Derived state variable for filtering books based on search query
     val filteredBooks by remember{
         derivedStateOf{
             if (searchQuery.isBlank())
@@ -61,7 +63,7 @@ fun BookListScreen(bookListViewModel: BookListViewModel,
             }
         }
     }
-
+    //Derived state variable for sorting books alphabetically
     val sortedBooks by remember {
         derivedStateOf {
             if (isSorted) {
@@ -71,7 +73,7 @@ fun BookListScreen(bookListViewModel: BookListViewModel,
             }
         }
     }
-
+    //Launched effect to fetch books from the view model and clear the book list on screen startup
     LaunchedEffect(Unit) {
         books.addAll(bookListViewModel.getBooks())
         bookListViewModel.clearBookList()
@@ -79,6 +81,7 @@ fun BookListScreen(bookListViewModel: BookListViewModel,
     }
 
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+        //Custom search bar with search icon and filter icon
         TextField(
             value = searchQuery,
             onValueChange = { searchQuery = it },
@@ -93,7 +96,7 @@ fun BookListScreen(bookListViewModel: BookListViewModel,
             shape = RoundedCornerShape(topStart = 30.dp, bottomStart = 30.dp, topEnd = 30.dp,
                 bottomEnd = 30.dp)
         )
-
+        //Buttons for navigating to add screen and sending email
         Row(modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
             horizontalArrangement = SpaceEvenly)
         {
@@ -117,7 +120,7 @@ fun BookListScreen(bookListViewModel: BookListViewModel,
                 }
             }
         }
-
+        //Dialog for sending email and obtaining credentials for the email
         if (showDialog)
         {
             SendEmailDialog(onDismiss = { showDialog = false
@@ -125,11 +128,13 @@ fun BookListScreen(bookListViewModel: BookListViewModel,
                 onConfirm = {changeDialog = true
                 bookListViewModel.resetCredentials()})
         }
+        //Dialog that displays when the email is sent
         if (changeDialog)
         {
             EmailSuccessDialog(onDismiss = {changeDialog = false}, bookListViewModel = bookListViewModel,
                 onConfirm = {changeDialog = false}, "Email Sent")
         }
+        //Lazy column for displaying book cards with contained book information
         LazyColumn(modifier = Modifier.fillMaxWidth())
         {
             items(sortedBooks)

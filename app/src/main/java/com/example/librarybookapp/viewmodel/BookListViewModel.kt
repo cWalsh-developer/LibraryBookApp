@@ -28,7 +28,8 @@ import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 import kotlin.math.roundToInt
 
-
+//Single viewmodel drilled down into the app for using across the entire app
+//Defined variables
 class BookListViewModel(database: AppDatabase): ViewModel() {
     private val bookDao: BookDAO = database.bookDao()
 
@@ -68,6 +69,7 @@ class BookListViewModel(database: AppDatabase): ViewModel() {
 
     var isChecked: Boolean = false
 
+    //Date validation logic
     fun isValidDate(dateString: String): Boolean {
         return try {
             val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
@@ -77,17 +79,17 @@ class BookListViewModel(database: AppDatabase): ViewModel() {
             false
         }
     }
-
+    //Email validation logic
     private fun isEmailValid(email: String): Boolean {
         val emailRegex = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$".toRegex()
         return email.matches(emailRegex) && email.trim().isNotEmpty()
     }
-
+    //Name validation logic
     private fun isValidName(name: String): Boolean {
         val nameRegex = "^[A-Za-z\\s'-]{2,}$".toRegex()
         return name.matches(nameRegex) && name.trim().isNotEmpty()
     }
-
+    //String formatting logic used for name and book string inputs
     fun formatString(input: String): String {
         return input.trim().lowercase()
             .split("(?<=[\\s'-.])|(?=[\\s'-.])".toRegex()) // Splits but keeps punctuation
@@ -97,7 +99,7 @@ class BookListViewModel(database: AppDatabase): ViewModel() {
                 } else word // Keep punctuation and spaces unchanged
             }
     }
-
+    //Creating the custom list with the checkbox logic
     fun setCustomListById(id: Int){
         val bookToAdd = bookDao.getBookById(id)
         if (bookToAdd != null)
@@ -115,11 +117,11 @@ class BookListViewModel(database: AppDatabase): ViewModel() {
             }
         }
     }
-
+    //Getter for the custom list access
     private fun getCustomList(): List<Book> {
         return book
     }
-
+    //Calculating the read progress of the book
     fun calculateProgress(book: Book): Float {
         val currentPage = book.progress
         val minValue = 0
@@ -135,27 +137,28 @@ class BookListViewModel(database: AppDatabase): ViewModel() {
             (clampedValue - minValue).toFloat() / (maxValue - minValue).toFloat()
         }
     }
-
+    //Calculating the percentage of the book read progress
     fun calculateProgressPercentage(book: Book): String {
         val progress = calculateProgress(book)
         val percentage = (progress * 100).roundToInt()
         return "$percentage%"
     }
-
+    //Setter for the book info on the bookInfo display page
     fun setBookInfo(book: Book) {
         _bookInfo.value = book
     }
-
+    //Database access logic for retrieving all the books
     suspend fun getBooks(): List<Book> {
         return bookDao.getAllBooks()
     }
-
+    //Database access logic for adding a book
     private fun addBook(book: Book) {
         viewModelScope.launch {
             bookDao.insertBook(book)
         }
     }
-
+    //Database access logic for getting a book by title and author which
+    // restricts the user from adding the same book twice
     fun getBookByTitle(book: Book, onBookFound: (Book?) -> Unit) {
         viewModelScope.launch {
             bookDao.getBookByTitle(book.bookTitle, book.bookAuthor)
@@ -174,17 +177,18 @@ class BookListViewModel(database: AppDatabase): ViewModel() {
                 }
         }
     }
-
+    //Clearing the book info display list
     fun clearBookList()
     {
         _bookToDisplay.value = null
 
     }
-
+    //Clearing the existing book dialog
     fun clearShowDialog()
     {
         _showDialog.value = false
     }
+    //Clearing credentials to reset validation
     fun resetCredentials()
     {
         _isEmailEmpty.value = true
@@ -193,14 +197,15 @@ class BookListViewModel(database: AppDatabase): ViewModel() {
         _isNameValid.value = false
         _isSubmitted.value = false
     }
-
+    //Database access logic for deleting a book
     suspend fun deleteBook(id: Int) {
         bookDao.deleteBook(id)
     }
-
+    //Database access logic for updating a book (Called inside the getBookByTitle function)
     suspend fun updateBook(book: Book) {
         bookDao.updateBook(book)
     }
+    //Email sending logic with email formatting
     fun sendEmail(emailAddress: String, name: String) {
         _isSubmitted.value = true
         _isEmailEmpty.value = emailAddress.trim().isEmpty()
@@ -239,7 +244,7 @@ class BookListViewModel(database: AppDatabase): ViewModel() {
             isChecked = false
         }
     }
-
+    //Email sending logic with MailJet API
     private fun sendWithEmailService(emailAddress: String,
                                      emailBody: String, name: String)
     {

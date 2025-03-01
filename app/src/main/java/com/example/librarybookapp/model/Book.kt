@@ -3,6 +3,7 @@ package com.example.librarybookapp.model
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
+//Entity for the database with the book table and automation generated id
 @Entity(tableName = "books")
 data class Book(
     var bookTitle: String,

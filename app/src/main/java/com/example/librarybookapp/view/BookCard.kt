@@ -39,8 +39,9 @@ fun BookCard(
     bookListViewModel: BookListViewModel,
     onProgress: () -> Float
 ) {
+    //remember saveable is used to save the state of the checkbox across configuration changes
     var isChecked by rememberSaveable { mutableStateOf(false) }
-
+// Card for displaying basic book information
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -59,6 +60,7 @@ fun BookCard(
                 .background(Color(0xFF6650a4)),
             verticalArrangement = Arrangement.spacedBy(0.dp)
         ) {
+            //Book title, author, and publish date displayed using \n for formatting
             Text(
                 text = "Title: ${book.bookTitle}\n" +
                         "Author: ${book.bookAuthor}\n" +
@@ -66,13 +68,14 @@ fun BookCard(
                 color = Color.White,
                 modifier = Modifier.padding(bottom = 8.dp)
             )
-
+            //Progress display of pages read and total pages
             Text(
                 text = "Pages Complete : ${book.progress}/${book.pages}",
                 color = Color.LightGray,
                 style = TextStyle(lineHeight = 20.sp, fontSize = 13.2.sp,
                     fontFamily = Serif)
             )
+            //Linear progress bar for book progress with percentage in a row for formatting
             Row(
                 modifier = Modifier,
                 verticalAlignment = Alignment.CenterVertically
@@ -84,6 +87,7 @@ fun BookCard(
                     modifier = Modifier.padding(start = 8.dp)
                 )
             }
+            //Checkbox for adding book to custom email list arranged with a row for formatting
             Row(modifier= Modifier.fillMaxWidth().padding(start = 125.dp), horizontalArrangement = Arrangement.End,
                 verticalAlignment = Alignment.CenterVertically)
             {
@@ -101,6 +105,7 @@ fun BookCard(
             }
         }
     }
+    //Removing checks once the email list has been sent successfully
     if(bookListViewModel.success.value)
     {
         isChecked = false

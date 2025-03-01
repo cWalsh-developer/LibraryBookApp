@@ -39,16 +39,18 @@ import androidx.compose.ui.window.Dialog
 import com.example.librarybookapp.viewmodel.BookListViewModel
 
 @Composable
+//Dialog for sending email
 fun SendEmailDialog(
     onDismiss: () -> Unit,
     bookListViewModel: BookListViewModel,
     onConfirm: () -> Unit,
 ) {
+    //State variables
     var emailAddress by remember { mutableStateOf("") }
     var name by remember { mutableStateOf("") }
     val loading by bookListViewModel.isLoading
     val success by bookListViewModel.success
-
+    //Dialog box design
     Dialog(onDismissRequest = onDismiss) {
     val focusManager = LocalFocusManager.current
         Surface(
@@ -101,6 +103,7 @@ fun SendEmailDialog(
                             bookListViewModel.isEmailEmpty.value ||
                             bookListViewModel.isEmailValid.value,
                     supportingText = {
+                        //Error message for email validation
                         if(bookListViewModel.isSubmitted.value)
                         {
                             when{
@@ -118,6 +121,7 @@ fun SendEmailDialog(
                         }
                     },
                     trailingIcon = {
+                        //Logic for deciding when to show the error icon
                         if (bookListViewModel.isSubmitted.value
                             && bookListViewModel.isEmailEmpty.value ||
                             bookListViewModel.isEmailValid.value)
@@ -153,6 +157,7 @@ fun SendEmailDialog(
                         name.trim())}),
                     isError = bookListViewModel.isSubmitted.value && bookListViewModel.isNameEmpty.value,
                     supportingText = {
+                        //Error message for name validation
                         if(bookListViewModel.isSubmitted.value && bookListViewModel.isNameEmpty.value)
                         {
                             Text(
@@ -162,6 +167,7 @@ fun SendEmailDialog(
                         }
                     },
                     trailingIcon = {
+                        //Logic for deciding when to show the error icon
                         if (bookListViewModel.isSubmitted.value
                             && bookListViewModel.isNameEmpty.value) {
                             Icon(Icons.Filled.Warning, contentDescription = "Error")
@@ -171,16 +177,20 @@ fun SendEmailDialog(
 
                 Button(
                     onClick = {
+                        //Call to send email function with trimmed parameters passed
                         bookListViewModel.sendEmail(emailAddress.trim(), name.trim())
                     },
                     colors = ButtonDefaults.buttonColors(Color(0xFF6650a4)),
                     modifier = Modifier.fillMaxWidth()
                 ) {
+                    //Logic for deciding when to show the loading indicator or the text
+                    //inside the button
                     if (loading) {
                         CircularProgressIndicator(color = Color.White)
                     } else {
                         Text(text = "Send", color = Color.White)
                     }
+                    //Closing the dialog after the email is sent and resetting the checkboxes
                     if (success) {
                         onConfirm()
                         onDismiss()

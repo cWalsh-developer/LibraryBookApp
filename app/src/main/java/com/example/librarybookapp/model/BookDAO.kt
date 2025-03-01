@@ -7,7 +7,7 @@ import androidx.room.Query
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 
-
+//Data access object for the book database
 @Dao
 interface BookDAO {
     @Query("SELECT * FROM books")

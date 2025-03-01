@@ -11,6 +11,7 @@ fun NavigationGraph(
     navController: NavHostController, bookListViewModel: BookListViewModel
 )
 {
+    //Navigation graph for the app navigation
     NavHost(navController = navController, startDestination = Screen.BookList.route)
     {
         composable(Screen.BookList.route)

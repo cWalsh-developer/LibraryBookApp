@@ -18,12 +18,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.example.librarybookapp.model.Book
-import com.example.librarybookapp.viewmodel.BookListViewModel
 
 @Composable
 fun ExistDialog(onDismiss: () -> Unit, existingBook: Book,
                 onConfirm: () -> Unit)
 {
+    //Dialog for when a book already exists in the library
     Dialog(onDismissRequest = onDismiss,
         content ={
             Surface(

@@ -57,13 +57,14 @@ fun AddBookScreen(onBookAdded: () -> Unit, bookListViewModel: BookListViewModel)
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        //Page title
         Text(
             text = "Add Book",
             modifier = Modifier.padding(bottom = 16.dp),
             color = Color(0xFF6650a4),
             style = MaterialTheme.typography.headlineLarge
         )
-
+        // Input field for book title
         OutlinedTextField(
             value = bookTitle,
             onValueChange = { bookTitle = it },
@@ -83,7 +84,7 @@ fun AddBookScreen(onBookAdded: () -> Unit, bookListViewModel: BookListViewModel)
                 .padding(8.dp)
                 .fillMaxWidth()
         )
-
+        // Input field for book author
         OutlinedTextField(
             value = bookAuthor,
             onValueChange = { bookAuthor = it },
@@ -103,7 +104,7 @@ fun AddBookScreen(onBookAdded: () -> Unit, bookListViewModel: BookListViewModel)
                 .padding(8.dp)
                 .fillMaxWidth()
         )
-
+        // Input field for book genre
         OutlinedTextField(
             value = bookGenre,
             onValueChange = { bookGenre = it },
@@ -123,6 +124,7 @@ fun AddBookScreen(onBookAdded: () -> Unit, bookListViewModel: BookListViewModel)
                 .padding(8.dp)
                 .fillMaxWidth()
         )
+        // Input field for book progress with extensive error handling
         OutlinedTextField(
             value = if (bookProgress == null) "" else bookProgress.toString(),
             onValueChange = { bookProgress = it.toIntOrNull()
@@ -148,6 +150,7 @@ fun AddBookScreen(onBookAdded: () -> Unit, bookListViewModel: BookListViewModel)
                 .padding(8.dp)
                 .fillMaxWidth(),
         )
+        // Input field for number of book pages
         OutlinedTextField(
             value = if (bookPages == null) "" else bookPages.toString(),
             onValueChange = { bookPages = it.toIntOrNull(); isProgressError = false},
@@ -167,7 +170,7 @@ fun AddBookScreen(onBookAdded: () -> Unit, bookListViewModel: BookListViewModel)
                 .padding(8.dp)
                 .fillMaxWidth(),
         )
-
+        // Input field for book date with date picker and manual input
         OutlinedTextField(
             value = bookDate,
             onValueChange = {
@@ -208,7 +211,7 @@ fun AddBookScreen(onBookAdded: () -> Unit, bookListViewModel: BookListViewModel)
                 bookDate = selectedDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))}
             , onDismiss = { datePickerDialog = false })
         }
-
+        // Add book button with existing book dialog error handling
         Button(onClick = {
             // Add book to database or perform other actions
             if (bookTitle.isEmpty() || bookAuthor.isEmpty() || bookGenre.isEmpty() ||
@@ -240,6 +243,7 @@ fun AddBookScreen(onBookAdded: () -> Unit, bookListViewModel: BookListViewModel)
         }, colors = ButtonDefaults.buttonColors(Color(0xFF6650a4))) {
             Text(text = "Add Book", color = Color.White)
         }
+        // Existing book dialog
         if(showDialog)
         {
             bookToDisplay?.let {

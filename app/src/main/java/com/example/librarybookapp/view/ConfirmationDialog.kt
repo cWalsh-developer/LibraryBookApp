@@ -12,6 +12,7 @@ import androidx.compose.ui.graphics.Color
 @Composable
 fun ConfirmationDialog(onDismiss: () -> Unit, onConfirm: () -> Unit)
 {
+    //Confirmation dialog for deleting a book
     AlertDialog(onDismissRequest = onDismiss,
         title = { Text(text = "Confirm Delete") },
         text = { Text(text = "Are you sure you want to delete this book?") },

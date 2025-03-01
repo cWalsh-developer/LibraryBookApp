@@ -57,13 +57,14 @@ fun EditBookScreen(bookListViewModel: BookListViewModel, onSaveChanges: () -> Un
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        //Page title
         Text(
             text = "Edit Book",
             modifier = Modifier.padding(bottom = 16.dp),
             color = Color(0xFF6650a4),
             style = MaterialTheme.typography.headlineLarge
         )
-
+        // Input field for book title
         OutlinedTextField(
             value = bookTitle,
             onValueChange = { bookTitle = it },
@@ -83,7 +84,7 @@ fun EditBookScreen(bookListViewModel: BookListViewModel, onSaveChanges: () -> Un
                 .padding(8.dp)
                 .fillMaxWidth()
         )
-
+        // Input field for book author
         OutlinedTextField(
             value = bookAuthor,
             onValueChange = { bookAuthor = it },
@@ -103,7 +104,7 @@ fun EditBookScreen(bookListViewModel: BookListViewModel, onSaveChanges: () -> Un
                 .padding(8.dp)
                 .fillMaxWidth()
         )
-
+        // Input field for book genre
         OutlinedTextField(
             value = bookGenre,
             onValueChange = { bookGenre = it },
@@ -123,7 +124,7 @@ fun EditBookScreen(bookListViewModel: BookListViewModel, onSaveChanges: () -> Un
                 .padding(8.dp)
                 .fillMaxWidth()
         )
-
+        // Input field for book progress with extensive error handling
         OutlinedTextField(
             value = if (bookProgress == null) "" else bookProgress.toString(),
             onValueChange = { bookProgress = it.toIntOrNull()
@@ -149,6 +150,7 @@ fun EditBookScreen(bookListViewModel: BookListViewModel, onSaveChanges: () -> Un
                 .padding(8.dp)
                 .fillMaxWidth(),
         )
+        // Input field for number of book pages
         OutlinedTextField(
             value = if (bookPages == null) "" else bookPages.toString(),
             onValueChange = { bookPages = it.toIntOrNull()
@@ -169,7 +171,7 @@ fun EditBookScreen(bookListViewModel: BookListViewModel, onSaveChanges: () -> Un
                 .padding(8.dp)
                 .fillMaxWidth(),
         )
-
+        // Input field for book date with date picker and manual input
         OutlinedTextField(
             value = bookDate,
             onValueChange = {
@@ -179,7 +181,9 @@ fun EditBookScreen(bookListViewModel: BookListViewModel, onSaveChanges: () -> Un
             isError = isDateError || (bookDate.isEmpty() && isError),
             trailingIcon = {
                 if ((bookDate.isEmpty() && isError) || isDateError) {
-                    Icon(Icons.Default.Warning, contentDescription = "Error")
+                    IconButton(onClick = {datePickerDialog = true}) {
+                        Icon(Icons.Default.Warning, contentDescription = "Error")
+                    }
                 }
                 else
                 {
@@ -208,7 +212,7 @@ fun EditBookScreen(bookListViewModel: BookListViewModel, onSaveChanges: () -> Un
                 bookDate = selectedDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))},
                 onDismiss = { datePickerDialog = false })
         }
-
+        // Save changes button
         Button(onClick = {
             // Update Book in database
             if (bookTitle.isEmpty() || bookAuthor.isEmpty() || bookGenre.isEmpty() ||

@@ -20,7 +20,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             val navController = rememberNavController()
             val bookListViewModel = BookListViewModel(DatabaseInstance.getDatabase(this))
-
+            //Theme for the app and navigation graph call
             LibraryBookAppTheme() {
                 Surface(modifier = Modifier.fillMaxSize()) {
                     NavigationGraph(
